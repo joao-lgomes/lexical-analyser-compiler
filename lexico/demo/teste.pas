@@ -1,6 +1,3 @@
-10
-teste
-xpt421z
 125 teste xpt421z
 array Teste JL:=20+30/4>=5
 >5

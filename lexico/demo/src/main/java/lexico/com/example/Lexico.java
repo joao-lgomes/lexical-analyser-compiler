@@ -39,6 +39,8 @@ public class Lexico {
     }
 
     public Token getToken(int linha, int coluna) {
+        int tamanhoToken = 0;
+        int qtdEspacos = 0;
         int e;
         StringBuilder lexema = new StringBuilder("");
         char caractere;
@@ -52,14 +54,14 @@ public class Lexico {
                     if (caractere == ' ') {
                         while (caractere == ' ') {
                             c = this.br.read();
-                            coluna++;
+                            qtdEspacos++;
                             caractere = (char) c;
                         }
                     } else if (Character.isLetter(caractere)) {
                         while (Character.isLetter(caractere) || Character.isDigit(caractere)) {
                             lexema.append(caractere);
                             c = this.br.read();
-                            coluna++;
+                            tamanhoToken++;
                             caractere = (char) c;   
                         }
                         
@@ -68,7 +70,8 @@ public class Lexico {
                         } else {
                             token.setClasse(Classe.cId);
                         }
-                        token.setColuna(coluna);
+                        token.setTamanhoToken(tamanhoToken);
+                        token.setColuna(coluna+qtdEspacos);
                         token.setLinha(linha);
                         Valor valor = new Valor(lexema.toString());
                         token.setValor(valor);
@@ -81,7 +84,7 @@ public class Lexico {
                             }
                             lexema.append(caractere);
                             c = this.br.read();
-                            coluna++;
+                            tamanhoToken++;
                             caractere = (char) c;
                         }
                         if(numberOfPoints<=1){
@@ -104,15 +107,18 @@ public class Lexico {
                             // else{
                                 
                             // }
-                            token.setColuna(coluna);
+                            token.setTamanhoToken(tamanhoToken);
+                            token.setColuna(coluna+qtdEspacos);
                             token.setLinha(linha);
                             return token;
                         }
                     } else {
+                        tamanhoToken++;
                         if(caractere==':'){
                             int proximo = this.br.read();
                             caractere = (char) proximo;
                             if(caractere=='='){
+                                tamanhoToken++;
                                 token.setClasse(Classe.cAtribuicao);
                             }else{
                                 this.br.unread(proximo);
@@ -130,6 +136,7 @@ public class Lexico {
                             int proximo = this.br.read();
                             caractere = (char) proximo;
                             if(caractere=='='){
+                                tamanhoToken++;
                                 token.setClasse(Classe.cMaiorIgual);
                             }else{
                                 this.br.unread(proximo);
@@ -139,8 +146,10 @@ public class Lexico {
                             int proximo = this.br.read();
                             caractere = (char) proximo;
                             if(caractere=='='){
+                                tamanhoToken++;
                                 token.setClasse(Classe.cMenorIgual);
                             }else if(caractere=='>'){
+                                tamanhoToken++;
                                 token.setClasse(Classe.cDiferente);
                             }else{
                                 token.setClasse(Classe.cMenor);
@@ -160,17 +169,20 @@ public class Lexico {
                         }else{
                             token.setClasse(Classe.cEOF);
                         }
-                        
-                        token.setColuna(coluna);
+                        token.setTamanhoToken(tamanhoToken);
+                        token.setColuna(coluna+qtdEspacos);
                         token.setLinha(linha);
                         token.setValor(null);
                         c = this.br.read();
+                        tamanhoToken++;
                         return token;
                     }
                 }else{
                     c = this.br.read();
                     linha++;
-                    coluna=0;
+                    qtdEspacos=0;
+                    tamanhoToken=0;
+                    coluna=1;
                 }
             }
 

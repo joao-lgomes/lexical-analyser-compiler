@@ -32,12 +32,12 @@ public class App
 
         Token token;
         int linha = 1;
-        int coluna = 0;
+        int coluna = 1;
 
         do {
             token = lexico.getToken(linha, coluna);
             System.out.println(token);
-            coluna = token.getColuna();
+            coluna = token.getColuna()+token.getTamanhoToken();
             linha = token.getLinha();
         } while (token.getClasse() != Classe.cEOF);
 
