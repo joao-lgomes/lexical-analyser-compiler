@@ -3,6 +3,7 @@ package lexico.com.example;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PushbackReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -12,7 +13,8 @@ public class Lexico {
     private String caminhoArquivo;
     private String nomeArquivo;
     private int c;
-    BufferedReader br;
+    PushbackReader br;
+    BufferedReader initialBr;
     private ArrayList<String> reservedWords = new ArrayList<String>(Arrays.asList(
         "and", "array", "begin", "case", "const", "div",
         "do", "downto", "else", "end", "file", "for", 
@@ -27,7 +29,8 @@ public class Lexico {
         this.nomeArquivo = nomeArquivo;
 
         try {
-            this.br = new BufferedReader(new FileReader(caminhoArquivo, StandardCharsets.UTF_8));
+            this.initialBr = new BufferedReader(new FileReader(caminhoArquivo, StandardCharsets.UTF_8));
+            this.br = new PushbackReader(initialBr);
             this.c = this.br.read();
         } catch (IOException err) {
             System.err.println("Não foi possível abrir o arquivo ou ler do arquivo: " + this.nomeArquivo);
@@ -59,7 +62,7 @@ public class Lexico {
                             coluna++;
                             caractere = (char) c;   
                         }
-                        Valor valor = new Valor();
+                        
                         if(returnIfIsReservedWord(lexema.toString())){
                             token.setClasse(Classe.cPalRes);
                         } else {
@@ -67,7 +70,7 @@ public class Lexico {
                         }
                         token.setColuna(coluna);
                         token.setLinha(linha);
-                        valor.setValorIdentificador(lexema.toString());
+                        Valor valor = new Valor(lexema.toString());
                         token.setValor(valor);
                         return token;
                     } else if (Character.isDigit(caractere)) {
@@ -82,49 +85,59 @@ public class Lexico {
                             caractere = (char) c;
                         }
                         if(numberOfPoints<=1){
-                            float numberConverted =  Float.parseFloat(lexema.toString());
-                            Valor valor = new Valor();
-                            if(numberConverted-Math.round(numberConverted)==0){
+                            if(numberOfPoints==0){
                                 token.setClasse(Classe.cInt);
-                                valor.setvalorInteiro(Integer.parseInt(lexema.toString()));
+                                Valor valor = new Valor(Integer.parseInt(lexema.toString()));
+                                token.setValor(valor);
                             }
                             else{
                                 token.setClasse(Classe.cReal);
-                                valor.setValorDecimal(numberConverted);
+                                Valor valor = new Valor(Float.parseFloat(lexema.toString()));
+                                token.setValor(valor);
                             }
+                            
+                            // if(numberConverted-Math.round(numberConverted)==0){
+                            //     token.setClasse(Classe.cInt);
+                            //     Valor valor = new Valor(Integer.parseInt(lexema.toString()));
+                            //     token.setValor(valor);
+                            // }
+                            // else{
+                                
+                            // }
                             token.setColuna(coluna);
                             token.setLinha(linha);
-                            token.setValor(valor);
                             return token;
                         }
                     } else {
                         if(caractere==':'){
-                            c = this.br.read();
-                            caractere = (char) c;
+                            int proximo = this.br.read();
+                            caractere = (char) proximo;
                             if(caractere=='='){
                                 token.setClasse(Classe.cAtribuicao);
                             }else{
+                                this.br.unread(proximo);
                                 token.setClasse(Classe.cDoisPontos);
                             }
                         }else if(caractere=='+'){
                             token.setClasse(Classe.cMais);
                         }else if(caractere=='-'){
-                            token.setClasse(Classe.cMais);
+                            token.setClasse(Classe.cMenos);
                         }else if(caractere=='/'){
-                            token.setClasse(Classe.cMais);
+                            token.setClasse(Classe.cDivisao);
                         }else if(caractere=='*'){
-                            token.setClasse(Classe.cMais);
+                            token.setClasse(Classe.cMultiplicacao);
                         }else if(caractere=='>'){
-                            c = this.br.read();
-                            caractere = (char) c;
+                            int proximo = this.br.read();
+                            caractere = (char) proximo;
                             if(caractere=='='){
                                 token.setClasse(Classe.cMaiorIgual);
                             }else{
+                                this.br.unread(proximo);
                                 token.setClasse(Classe.cMaior);
                             }
                         }else if(caractere=='<'){
-                            c = this.br.read();
-                            caractere = (char) c;
+                            int proximo = this.br.read();
+                            caractere = (char) proximo;
                             if(caractere=='='){
                                 token.setClasse(Classe.cMenorIgual);
                             }else if(caractere=='>'){

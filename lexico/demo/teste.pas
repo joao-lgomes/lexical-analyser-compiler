@@ -1,3 +1,7 @@
-jLTeste >= 10.2
-GodoiCaradeBosta <> if
-teste12:=20>50+4array
+10
+teste
+xpt421z
+125 teste xpt421z
+array Teste JL:=20+30/4>=5
+>5
+if joao>10>=20 (5.78):=while
