@@ -152,6 +152,7 @@ public class Lexico {
                                 tamanhoToken++;
                                 token.setClasse(Classe.cDiferente);
                             }else{
+                                this.br.unread(proximo);
                                 token.setClasse(Classe.cMenor);
                             }
                         }else if(caractere=='='){
